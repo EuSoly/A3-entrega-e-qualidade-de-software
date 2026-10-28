@@ -1,9 +1,4 @@
-# conftest.py
-# Configuração compartilhada por todos os testes (o pytest carrega este arquivo sozinho).
-# - Fixture `driver`: abre o Chrome antes de cada teste e fecha ao final,
-#   mesmo quando o teste falha (item 7 do enunciado).
-# - Hook de evidência: ao fim de cada teste tira um print e salva em
-#   evidencias/CT-XXX_APROVADO.png ou evidencias/CT-XXX_REPROVADO.png (item 8).
+## conftest pra gerar as evidencias, ele faz um hook que roda antes de cada teste para gerar uma print com o nome do teste e se foi aprovado ou nao na pasta de evidencias
 
 
 import re
@@ -25,8 +20,8 @@ def driver():
     options.add_argument("--disable-notifications")
     options.add_argument("--window-size=1366,900")
     navegador = webdriver.Chrome(options=options)
-    yield navegador          # o teste roda aqui
-    navegador.quit()         # roda mesmo se o teste falhar
+    yield navegador          
+    navegador.quit()         
 
 
 @pytest.hookimpl(wrapper=True)

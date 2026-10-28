@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from utils.caracteristicas import separar
 
 class Pagina_inicial:
@@ -15,8 +16,14 @@ class Pagina_inicial:
         self.url = 'https://www.kabum.com.br/'
         self.driver.maximize_window()
         self.wait = WebDriverWait(self.driver, 15)
-    def Pesquisar(self,produto):
+
+    def acessar_navegador(self):
         self.driver.get(self.url)
+        
+
+
+    def Pesquisar(self,produto):
+        self.acessar_navegador()
         barra = self.wait.until(EC.element_to_be_clickable((By.ID, 'inputBusca')))
         barra.send_keys(produto)
         ##print('produto digitado')
@@ -35,12 +42,15 @@ class Pagina_inicial:
         proximo = (By.CSS_SELECTOR, "a.nextLink")
         anuncios = []
         for paginar in range(max_paginas):
-            num_cards = self.wait.until(EC.presence_of_all_elements_located(cards))
+            try:
+                num_cards = self.wait.until(EC.presence_of_all_elements_located(cards))
+            except TimeoutException:
+                break   
             for card in num_cards:
                 dados = self.extrair(card)
                 dados.update(separar(dados['titulo']))
                 anuncios.append(dados)
-            # para no limite de páginas ou quando não houver próxima
+           
             if paginar + 1 == max_paginas or not self.proxima_pagina(proximo, num_cards[0]):
                 break
         return anuncios
@@ -49,11 +59,11 @@ class Pagina_inicial:
         botao = self.driver.find_element(*proximo)
         if botao.get_attribute("aria-disabled") == "true":
             return False
-        # o site usa scroll suave; rolar instantâneo evita ElementClickInterceptedException
+       
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block: 'center', behavior: 'instant'})", botao)
         botao.click()
-        # a URL não muda entre páginas: espera os cards antigos saírem do DOM
+        
         self.wait.until(EC.staleness_of(primeiro_card))
         return True
 
