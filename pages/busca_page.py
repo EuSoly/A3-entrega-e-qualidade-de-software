@@ -36,7 +36,23 @@ class Pagina_inicial:
         self.wait.until(EC.url_changes(self.url))
 
 
-    
+    def busca_vazia_bloqueada(self):
+        # Com o campo de busca vazio, o KaBuM mantém o botão de pesquisa
+        # desabilitado, impedindo a busca (validação de campo obrigatório).
+        self.acessar_navegador()
+        self.wait.until(EC.presence_of_element_located((By.ID, 'inputBusca')))
+        botao = self.wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, 'button[data-testid="buttonBuscaKabum"]')))
+        return not botao.is_enabled()
+
+    def sem_resultado(self):
+        localizador = (By.XPATH, "//*[contains(text(), 'nenhum produto encontrado')]")
+        try:
+            self.wait.until(EC.presence_of_element_located(localizador))
+            return True
+        except TimeoutException:
+            return False
+
     def Listar(self, max_paginas):
         cards = (By.CSS_SELECTOR, "#main-content a[href*='/produto/']")
         proximo = (By.CSS_SELECTOR, "a.nextLink")
