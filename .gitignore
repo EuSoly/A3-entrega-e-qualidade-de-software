@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 .Claude
 
+# Projeto de Banco de Dados tem repositório próprio (A3-banco-de-dados)
+Banco de dados/
+
